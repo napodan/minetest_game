@@ -1,7 +1,7 @@
 
 -- Sheep
 
-mobs:register_mob("mobs:sheep", {
+mobs:register_mob(MODNAME .. ":sheep", {
 	type = "animal",
 	hp_min = 8,
 	hp_max = 10,
@@ -13,7 +13,7 @@ mobs:register_mob("mobs:sheep", {
 	walk_velocity = 1,
 	armor = 200,
 	drops = {
-		{name = "mobs:meat_raw",
+		{name = MODNAME .. ":meat_raw",
 		chance = 1,
 		min = 2,
 		max = 3,},
@@ -70,4 +70,41 @@ mobs:register_mob("mobs:sheep", {
 		end
 	end,
 })
-mobs:register_spawn("mobs:sheep", {"default:dirt_with_grass", "ethereal:green_dirt_top"}, 20, 8, 9000, 1, 31000)
+
+-- Lamb
+
+mobs:register_mob(MODNAME .. ":lamb", {
+	type = "animal",
+	hp_min = 8,
+	hp_max = 8,
+	collisionbox = {-0.4, -0.01, -0.4, 0.4, 1, 0.4},
+	textures = {"mobs_sheep.png"},
+	visual = "mesh",
+	visual_size = { x=0.5, y=0.5},
+	mesh = "mobs_sheep.x",
+	makes_footstep_sound = true,
+	walk_velocity = 1,
+	armor = 200,
+	drawtype = "front",
+	water_damage = 1,
+	lava_damage = 5,
+	light_damage = 0,
+	sounds = {
+		random = "mobs_sheep",
+	},
+	animation = {
+		speed_normal = 15,
+		stand_start = 0,
+		stand_end = 80,
+		walk_start = 81,
+		walk_end = 100,
+	},
+	jump = true,
+	step = 1,
+	blood_texture = "mobs_blood.png",
+	passive = true,
+	follow = "farming:wheat",
+	view_range = 5,
+})
+mobs:register_spawn(MODNAME .. ":sheep", {"default:dirt_with_grass", "ethereal:green_dirt_top"}, 20, 8, 9000, 1, 31000)
+mobs:register_spawn(MODNAME .. ":lamb", {"default:dirt_with_grass", "ethereal:green_dirt_top"}, 20, 8, 9000, 1, 31000)

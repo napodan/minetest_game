@@ -1,5 +1,5 @@
 mobs = {}
-mobs.mod = "redo"
+mobs.mod = MODNAME
 function mobs:register_mob(name, def)
 	minetest.register_entity(name, {
 		name = name,
@@ -196,7 +196,7 @@ function mobs:register_mob(name, def)
 				if math.random(1, 1000) <= 1
 				and minetest.get_node(self.object:getpos()).name == "air"
 				and self.state == "stand" then
-					minetest.set_node(self.object:getpos(), {name="mobs:egg"})
+					minetest.set_node(self.object:getpos(), {name=MODNAME .. ":egg"})
 				end
 			end
 			
@@ -359,10 +359,10 @@ function mobs:register_mob(name, def)
 					local p = player:getpos()
 					local dist = ((p.x-s.x)^2 + (p.y-s.y)^2 + (p.z-s.z)^2)^0.5
 					if self.view_range and dist < self.view_range then
-						if self.monsterdetect == false then
-							self.following = player
-						else
+						if self.monsterdetect == true then
 							self.following = nil
+						else
+							self.following = player
 						end
 						break
 					end

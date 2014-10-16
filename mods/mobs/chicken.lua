@@ -13,6 +13,7 @@ mobs:register_mob("mobs:chicken", {
 	textures = {"mobs_chicken.png", "mobs_chicken.png", "mobs_chicken.png", "mobs_chicken.png",
 				"mobs_chicken.png", "mobs_chicken.png", "mobs_chicken.png", "mobs_chicken.png", "mobs_chicken.png"},
 	makes_footstep_sound = true,
+	monsterdetect = false,
 	walk_velocity = 1,
 	armor = 200,
 	drops = {

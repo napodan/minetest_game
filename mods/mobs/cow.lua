@@ -11,6 +11,7 @@ mobs:register_mob("mobs:cow", {
 	mesh = "mobs_cow.x",
 	makes_footstep_sound = true,
 	view_range = 7,
+	monsterdetect = false,
 	walk_velocity = 1,
 	run_velocity = 2,
 	damage = 10,

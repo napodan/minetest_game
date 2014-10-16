@@ -359,8 +359,12 @@ function mobs:register_mob(name, def)
 					local p = player:getpos()
 					local dist = ((p.x-s.x)^2 + (p.y-s.y)^2 + (p.z-s.z)^2)^0.5
 					if self.view_range and dist < self.view_range then
-						if self.monsterdetect == true then
-							self.following = nil
+						if self.type == "warpet" then
+							if self.monsterdetect == false then
+								self.following = player
+							else
+								self.following = nil
+							end
 						else
 							self.following = player
 						end
@@ -624,7 +628,7 @@ function mobs:register_mob(name, def)
 					self.object:set_properties(tmp.textures)
 				end]]
 			end
-			if self.lifetimer <= 0 and not self.tamed and self.type ~= "npc" then
+			if self.lifetimer <= 0 and not self.tamed and self.type ~= "npc" and self.type ~= "warpet" then
 				self.object:remove()
 			end
 		end,
@@ -901,4 +905,5 @@ local weapon = player:get_wielded_item()
 --		})
 --	end	
 end
+
 

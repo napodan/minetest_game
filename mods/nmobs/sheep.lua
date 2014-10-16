@@ -10,6 +10,7 @@ mobs:register_mob(MODNAME .. ":sheep", {
 	visual = "mesh",
 	mesh = "mobs_sheep.x",
 	makes_footstep_sound = true,
+	monsterdetect = false,
 	walk_velocity = 1,
 	armor = 200,
 	drops = {

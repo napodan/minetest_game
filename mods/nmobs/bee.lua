@@ -10,6 +10,7 @@ mobs:register_mob("mobs:bee", {
 	mesh = "mobs_bee.x",
 	textures = {"mobs_bee.png"},
 	makes_footstep_sound = false,
+	monsterdetect = false,
 	walk_velocity = 1,
 	armor = 200,
 	drops = {

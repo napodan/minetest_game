@@ -1,5 +1,5 @@
-
 -- Sheep
+MODNAME = "nsheep"
 
 mobs:register_mob(MODNAME .. ":sheep", {
 	type = "animal",
@@ -109,3 +109,18 @@ mobs:register_mob(MODNAME .. ":lamb", {
 })
 mobs:register_spawn(MODNAME .. ":sheep", {"default:dirt_with_grass", "ethereal:green_dirt_top"}, 20, 8, 9000, 1, 31000)
 mobs:register_spawn(MODNAME .. ":lamb", {"default:dirt_with_grass", "ethereal:green_dirt_top"}, 20, 8, 9000, 1, 31000)
+
+
+nsheep = {
+	textures = {"mobs_sheep.png"},
+	visual = "mesh",
+	mesh = "mobs_sheep.x",
+}
+
+nlamb = {
+	visual_size = { x=0.5, y=0.5},
+	spawnin = {"default:dirt_with_grass","default:sand"},
+}
+bredanimal:register_mobs(MODNAME .. ":nsheep", nsheep, bredanimal)
+nsheep:register_mobs(MODNAME .. ":nlamb", nlamb, nsheep)
+

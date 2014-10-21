@@ -1,14 +1,18 @@
 -- Mob Api (15 Oct 2014)
 
-MODNAME = "nmobs"
+MODNAME = "nmobsfmw"
 dofile(minetest.get_modpath(MODNAME).."/api.lua")
+dofile(minetest.get_modpath(MODNAME).."/spawner.lua")
+dofile(minetest.get_modpath(MODNAME).."/nmobs.lua")
+dofile(minetest.get_modpath(MODNAME).."/animal.lua")
+dofile(minetest.get_modpath(MODNAME).."/bredanimal.lua")
+dofile(minetest.get_modpath(MODNAME).."/monster.lua")
 
 -- Animals inc. Krupnovpavel's warthog/bee and JKmurray's chicken
 
 --dofile(minetest.get_modpath("mobs").."/chicken.lua")
 --dofile(minetest.get_modpath("mobs").."/cow.lua")
 --dofile(minetest.get_modpath("mobs").."/rat.lua")
-dofile(minetest.get_modpath(MODNAME).."/sheep.lua")
 --dofile(minetest.get_modpath("mobs").."/warthog.lua")
 --dofile(minetest.get_modpath("mobs").."/bee.lua")
 --dofile(minetest.get_modpath("mobs").."/dog.lua")

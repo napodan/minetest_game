@@ -17,7 +17,9 @@ end
 function bredanimal:remove_on_activate()
 	-- Bred animals are not removed
 end
-
+function bredanimal:check_players_pos(dtime, pos)
+	-- Bred animals are not removed
+end
 register_mobs(MODNAME .. ":bredanimal", bredanimal)
 
 minetest.register_on_generated(function(minp, maxp, seed)

@@ -1,4 +1,6 @@
 local ABR = minetest.setting_get("active_block_range")
+-- Distance max from a player to a node in the active area
+local distmax = ( 3 * (ABR * 16)^2 )^0.5
 local INTERVAL = 30
 spawner_param = {}
 spawner_param["hostile"] = { 
@@ -14,7 +16,7 @@ spawner_param["hostile"] = {
 	entities = {},
 	nbEntities = 0, -- Number of spawned entities in the current block
 	current_block = nil, -- We only treat 4 nodes in a block
-	nbMax = math.ceil(70 * (ABR)^3 / 512), -- Max entities in the Active Block Range
+	nbMax = math.ceil(70 * (ABR)^3 / 4096), -- Max entities in the Active Block Range
 	current_entity = "", -- Entity that will be spawn in the current block
 }
 
@@ -23,26 +25,36 @@ function spawning_function_hostile(pos, node, active_object_count, active_object
 end
 
 function spawning_function(pos, node, active_object_count, active_object_count_wider, param)
+	local distplayermin = distmax
+	local nearestplayer = {}
 	for _,player in pairs(minetest.get_connected_players()) do
 		local p = player:getpos()
-		-- calcul nb entities de la categorie
-		local nbTotalEntities = 0
-		for _,object in pairs(minetest.get_objects_inside_radius(p,128.0)) do
-			if not object:is_player() then
-				local entity = object:get_luaentity()
-				if entity then
-					if entity.category == param.category then
-						nbTotalEntities = nbTotalEntities + 1
-						if nbTotalEntities > param.nbMax then
-							return
-						end
-					end
-				end
-			end
-		end
 		local dist = vector.distance(p, pos)
 		if dist <= 24 then
 			return
+		end
+		if dist < distplayermin then
+			distplayermin = dist
+			nearestplayer = p
+		end
+	end
+
+	if distplayermin == distmax then
+		return
+	end
+	-- calcul nb entities de la categorie
+	local nbTotalEntities = 0
+	for _,object in pairs(minetest.get_objects_inside_radius(nearestplayer, distmax)) do
+		if not object:is_player() then
+			local entity = object:get_luaentity()
+			if entity then
+				if entity.category == param.category then
+					nbTotalEntities = nbTotalEntities + 1
+					if nbTotalEntities > param.nbMax then
+						return
+					end
+				end
+			end
 		end
 	end
 	local block = vector.divide(pos, 16)
@@ -112,5 +124,4 @@ function init_spawners(mapgen_params)
 end
 
 minetest.register_on_mapgen_init(init_spawners(mapgen_params))
-
 

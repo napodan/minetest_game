@@ -112,15 +112,17 @@ mobs:register_spawn(MODNAME .. ":lamb", {"default:dirt_with_grass", "ethereal:gr
 
 
 nsheep = {
+	inherit = bredanimal,
 	textures = {"mobs_sheep.png"},
 	visual = "mesh",
 	mesh = "mobs_sheep.x",
 }
 
 nlamb = {
+	inherit = nsheep,
 	visual_size = { x=0.5, y=0.5},
 	spawnin = {"default:dirt_with_grass","default:sand"},
 }
-bredanimal:register_mobs(MODNAME .. ":nsheep", nsheep, bredanimal)
-nsheep:register_mobs(MODNAME .. ":nlamb", nlamb, nsheep)
+register_mobs(MODNAME .. ":nsheep", nsheep)
+register_mobs(MODNAME .. ":nlamb", nlamb)
 

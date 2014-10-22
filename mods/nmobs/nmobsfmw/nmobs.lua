@@ -38,17 +38,25 @@ function nmobs:register_mobs(name, proto, base)
 			if spawner_param["hostile"].entities[spawnin] == nil then
 				print("new spawner " .. spawnin)
 				spawner_param["hostile"].entities[spawnin] = {}
-				table.insert(spawner_param["hostile"].nodenames, spawnin)
+				table.insert(spawner_param["hostile"].surfaces, spawnin)
 			end
 			table.insert(spawner_param["hostile"].entities[spawnin], proto.name)
+			spawner_param["hostile"].entities[spawnin][proto.name] = proto
 		end
 	end
 end
 
 function nmobs:remove_on_activate()
-	-- Where have you been ? Maybe to far
+	-- Where have you been ? Maybe too far
 	self.object:remove()
 end
 
 nmobs:register_mobs(MODNAME .. ":nmobs", nmobs)
 
+function register_mobs(name, proto)
+	if proto.inherit then
+		proto.inherit:register_mobs(name, proto, proto.inherit)
+	else
+		print(name .. "must have an inherit record")
+	end
+end

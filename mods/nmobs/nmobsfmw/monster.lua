@@ -1,5 +1,6 @@
 monster = {
+	inherit = nmobs,
 	peaceful = false,
 }
 
-nmobs:register_mobs(MODNAME .. ":monster", monster, nmobs)
+register_mobs(MODNAME .. ":monster", monster)

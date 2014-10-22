@@ -1,6 +1,7 @@
 animal = {
+	inherit = nmobs,
 	peaceful = true,
 }
 
-nmobs:register_mobs(MODNAME .. ":animal", animal, nmobs)
+register_mobs(MODNAME .. ":animal", animal)
 

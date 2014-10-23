@@ -5,7 +5,7 @@ mobs:register_mob(MODNAME .. ":sheep", {
 	type = "animal",
 	hp_min = 8,
 	hp_max = 10,
-	collisionbox = {-0.4, -0.01, -0.4, 0.4, 1, 0.4},
+	collisionbox = {-0.4, 0, -0.4, 0.4, 1, 0.4},
 	textures = {"mobs_sheep.png"},
 	visual = "mesh",
 	mesh = "mobs_sheep.x",
@@ -116,12 +116,20 @@ nsheep = {
 	textures = {"mobs_sheep.png"},
 	visual = "mesh",
 	mesh = "mobs_sheep.x",
+	collisionbox = {-0.4, 0, -0.4, 0.4, 1.25, 0.4},
+
+	animation = {
+		speed_normal = 15,
+		stand_start = 0,
+		stand_end = 80,
+		move_start = 81,
+		move_end = 100,
+	},
 }
 
 nlamb = {
 	inherit = nsheep,
 	visual_size = { x=0.5, y=0.5},
-	spawnin = {"default:dirt_with_grass","default:sand"},
 }
 register_mobs(MODNAME .. ":nsheep", nsheep)
 register_mobs(MODNAME .. ":nlamb", nlamb)

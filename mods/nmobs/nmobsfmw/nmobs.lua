@@ -4,9 +4,13 @@ nmobs = {
 	hp_max = 10,
 	physical = true,
 	collisionbox = {-0.4, 0, -0.4, 0.4, 1, 0.4},
+	automatic_face_movement_dir = -90.0,
+
+	move_velocity = 1,
 	peaceful = false,
 	player_last_time_seen =0,
 	view_range = 16,
+	target = nil,
 	on_activate = function (self, staticdata, dtime_s)
 		if dtime_s ~= 0 then
 			self.remove_on_activate(self)
@@ -17,6 +21,8 @@ nmobs = {
 function nmobs:on_step(dtime)
 	self.check_state(self, dtime)
 	self.find_target(self, dtime)
+	self.goto_target(self, dtime)
+	self.target_reach(self, dtime)
 end
 
 function nmobs:check_state(dtime)
@@ -31,6 +37,13 @@ function nmobs:check_state(dtime)
 		self.object:remove()
 	end
 	self.check_players_pos(self,dtime, pos)
+	if node == "air" then
+		self.object:setacceleration({ x=0, y=-10, z=0})
+	else
+		-- all mobs can swim in water or in lava
+		self.object:setacceleration({ x=0, y=0, z=0})
+	end
+		
 end
 
 function nmobs:check_players_pos(dtime,pos)
@@ -56,10 +69,75 @@ function nmobs:check_players_pos(dtime,pos)
 end
 
 function nmobs:find_target(dtime)
-	local pos = self.object:getpos()
-	local node = minetest.get_node(pos).name
-	
-	--minetest.find_node_near(pos, self.view_range, node)
+	self.find_random_target(self, dtime)
+end
+
+function nmobs:find_random_target(dtime)
+	if self.target == nil then
+		local pos = self.object:getpos()
+		local minp = vector.subtract(vector.new(pos), self.view_range)
+		local maxp = vector.add(vector.new(pos), self.view_range)
+		local l_air = minetest.find_nodes_in_area(minp, maxp, {"air"})
+		if #l_air == 0 then
+			print("Something is wrong")
+			return
+		end
+		local i = math.random(1, #l_air)
+		local node = l_air[i]
+		local under = vector.new(node)
+		under.y = under.y - 1		
+		local undername = minetest.get_node(under).name
+		if undername ~= "air" and 
+				minetest.get_item_group(undername,"water") == 0 and
+				minetest.get_item_group(undername,"lava") == 0 then
+			local upper = vector.new(node)
+			upper.y = upper.y + 1
+			if minetest.get_node(upper).name == "air" then
+				self.target = node
+				self.target.y = self.target.y - 0.5
+				self.state = move
+			end
+		end
+	end
+end
+
+function nmobs:goto_target(dtime)
+	if self.target then
+		local object = self.object
+		local pos = object:getpos()
+		local direction = vector.subtract(self.target, pos)
+		direction.y = 0
+		direction = vector.normalize(direction)
+		local nextnode = vector.add(pos, direction)
+		local node = minetest.get_node(nextnode).name
+		direction = vector.multiply(direction, self.move_velocity)
+		-- We can jump only if we are not falling or not jumping
+		if math.abs(object:getvelocity().y) == 0 then
+			if node ~= "air" and 
+					minetest.get_item_group(node,"water") == 0 and
+					minetest.get_item_group(node,"lava") == 0 then
+				-- we need to jump
+				direction.y = 7
+			end
+		end
+		-- replaced by automatic_face_movement_dir = -90.0
+		--local yaw = math.atan(direction.z/direction.x)+math.pi/2
+		--object:setyaw(yaw)
+		object:setvelocity(direction)
+		object:set_animation(
+			{x=self.animation.move_start,
+			y=self.animation.move_end},
+			self.animation.speed_normal, 0)
+	end
+end
+
+function nmobs:target_reach(dtime)
+	if self.target then
+		if vector.distance(self.object:getpos(), self.target) <  1 then
+			self.target = nil
+			self.state = stand
+		end
+	end	
 end
 
 function nmobs:register_mobs(name, proto, base)

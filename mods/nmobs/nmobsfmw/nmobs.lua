@@ -29,16 +29,18 @@ end
 function nmobs:check_state(dtime)
 	local pos = self.object:getpos()
 	local node = minetest.get_node(pos).name
+	local nodedef = minetest.registered_nodes[node]
 	if node ~= "air" and 
-			minetest.get_item_group(node,"water") == 0 and
-			minetest.get_item_group(node,"lava") == 0 then
+			( nodedef.walkable == nil or
+				nodedef.walkable ) then
 		-- Where am I ? I feel lost
 		-- That may happen during the map generation : some mobs may appear
 		-- before some node in the same place
 		self.object:remove()
 	end
 	self.check_players_pos(self,dtime, pos)
-	if node == "air" then
+	if minetest.get_item_group(node, "water") == 0 and
+		minetest.get_item_group(node, "lava") == 0 then
 		self.object:setacceleration({ x=0, y=-10, z=0})
 	else
 		-- all mobs can swim in water or in lava
@@ -88,9 +90,10 @@ function nmobs:find_random_target(dtime)
 		local under = vector.new(node)
 		under.y = under.y - 1		
 		local undername = minetest.get_node(under).name
+		local underdef = minetest.registered_nodes[undername]
 		if undername ~= "air" and 
-				minetest.get_item_group(undername,"water") == 0 and
-				minetest.get_item_group(undername,"lava") == 0 then
+				( underdef.walkable == nil or
+				underdef.walkable ) then
 			local upper = vector.new(node)
 			upper.y = upper.y + 1
 			if minetest.get_node(upper).name == "air" then

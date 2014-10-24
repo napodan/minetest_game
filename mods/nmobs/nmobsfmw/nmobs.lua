@@ -5,6 +5,7 @@ nmobs = {
 	physical = true,
 	collisionbox = {-0.4, 0, -0.4, 0.4, 1, 0.4},
 	automatic_face_movement_dir = -90.0,
+	stepheight = 1.1,
 
 	move_velocity = 1,
 	peaceful = false,
@@ -108,21 +109,8 @@ function nmobs:goto_target(dtime)
 		local direction = vector.subtract(self.target, pos)
 		direction.y = 0
 		direction = vector.normalize(direction)
-		local nextnode = vector.add(pos, direction)
-		local node = minetest.get_node(nextnode).name
 		direction = vector.multiply(direction, self.move_velocity)
-		-- We can jump only if we are not falling or not jumping
-		if math.abs(object:getvelocity().y) == 0 then
-			if node ~= "air" and 
-					minetest.get_item_group(node,"water") == 0 and
-					minetest.get_item_group(node,"lava") == 0 then
-				-- we need to jump
-				direction.y = 7
-			end
-		end
-		-- replaced by automatic_face_movement_dir = -90.0
-		--local yaw = math.atan(direction.z/direction.x)+math.pi/2
-		--object:setyaw(yaw)
+		
 		object:setvelocity(direction)
 		object:set_animation(
 			{x=self.animation.move_start,

@@ -125,3 +125,31 @@ end
 
 minetest.register_on_mapgen_init(init_spawners(mapgen_params))
 
+minetest.register_chatcommand("debug_nmobs", {
+	params = "",
+	description = "Display entities around players",
+	func = function(name, param)
+		local nb = {}
+		for _,player in pairs(minetest.get_connected_players()) do
+			local p = player:getpos()
+			for _,object in pairs(minetest.get_objects_inside_radius(p, 240)) do
+				if not object:is_player() then
+					local entity = object:get_luaentity()
+					if entity then
+						local pos = entity.object:getpos()
+						print(entity.name .. " " .. minetest.pos_to_string(pos))
+						if nb[entity.name] == nil then
+							nb[entity.name] = 1
+						else
+							nb[entity.name] = nb[entity.name] + 1
+						end
+					end
+				end
+			end
+		end
+		for mobs, number in pairs(nb) do
+			print("Number of " .. mobs .. " : " .. number)
+		end
+	end,
+})
+

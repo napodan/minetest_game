@@ -107,8 +107,8 @@ mobs:register_mob(MODNAME .. ":lamb", {
 	follow = "farming:wheat",
 	view_range = 5,
 })
-mobs:register_spawn(MODNAME .. ":sheep", {"default:dirt_with_grass", "ethereal:green_dirt_top"}, 20, 8, 9000, 1, 31000)
-mobs:register_spawn(MODNAME .. ":lamb", {"default:dirt_with_grass", "ethereal:green_dirt_top"}, 20, 8, 9000, 1, 31000)
+--mobs:register_spawn(MODNAME .. ":sheep", {"default:dirt_with_grass", "ethereal:green_dirt_top"}, 20, 8, 9000, 1, 31000)
+--mobs:register_spawn(MODNAME .. ":lamb", {"default:dirt_with_grass", "ethereal:green_dirt_top"}, 20, 8, 9000, 1, 31000)
 
 
 nsheep = {

@@ -20,7 +20,6 @@ nspider = {
 		punch_start = 50,
 		punch_end = 90,
 	},
-
 	spawnin = {"default:dirt_with_grass",
 		"default:dirt",
 		"default:sand",
@@ -31,6 +30,7 @@ nspider = {
 		"default:mossycobble",
 		"default:gravel",
 		"default:jungletree"},
+	peaceful = true,
 }
 
 register_mobs(MODNAME .. ":nspider", nspider)

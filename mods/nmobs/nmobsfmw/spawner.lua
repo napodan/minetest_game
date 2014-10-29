@@ -15,7 +15,7 @@ spawner_param["hostile"] = {
 		-- each record indexed by a string is a mob (the name is the index)
 	entities = {},
 	nbEntities = 0, -- Number of spawned entities in the current block
-	current_block = nil, -- We only treat 4 nodes in a block
+	current_block = nil, -- We only treat 4 random nodes in a block
 	nbMax = math.ceil(70 * (ABR)^3 / 4096), -- Max entities in the Active Block Range
 	current_entity = "", -- Entity that will be spawn in the current block
 }

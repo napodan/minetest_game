@@ -8,6 +8,9 @@ nmobs = {
 	stepheight = 1.1,
 
 	move_velocity = 1,
+	move_timer = 1,
+	inblocktimer = 0,
+	maxdrop = 4,
 	peaceful = false,
 	player_last_time_seen =0,
 	view_range = 16,
@@ -16,19 +19,44 @@ nmobs = {
 		if dtime_s ~= 0 then
 			self.remove_on_activate(self)
 		end
+		self.move_timer = 1
+		self.state = stand
+		self.object:set_animation({
+			x = self.animation.stand_start,
+			y = self.animation.stand_end},
+			self.animation.speed_normal,
+			0)
 	end,
 }
 
 function nmobs:on_step(dtime)
 	self.check_state(self, dtime)
-	self.find_target(self, dtime)
-	self.goto_target(self, dtime)
-	self.target_reach(self, dtime)
+	if self.sounds and self.sounds.random and math.random(1, 100) <= 1 then
+		minetest.sound_play(self.sounds.random, {object = self.object})
+	end
+	if self.move_timer < 0 then
+		self.find_target(self, dtime)
+		self.goto_target(self, dtime)
+		self.target_reach(self, dtime)
+		self.move_timer = 1
+	else
+		self.move_timer = self.move_timer - dtime
+	end
 end
 
 function nmobs:check_state(dtime)
 	local pos = self.object:getpos()
-	local node = minetest.get_node(pos).name
+	--print(minetest.pos_to_string(pos))
+	-- Be careful
+	-- entity at y = 1.5 belong to the node at y = 2
+	-- entity at y = -1.5 belong to the node at y = -1 but get_node give us
+	-- the node at y = -2
+	-- every time we need to get a node from an entity we need to add 0.5 to
+	-- get the node where the entity is or substract 0.5 to get the node
+	-- under the entity
+	local nodepos = vector.new(pos)
+	nodepos.y = nodepos.y + 0.5
+	local node = minetest.get_node(nodepos).name
 	local nodedef = minetest.registered_nodes[node]
 	if node ~= "air" and 
 			( nodedef.walkable == nil or
@@ -36,7 +64,17 @@ function nmobs:check_state(dtime)
 		-- Where am I ? I feel lost
 		-- That may happen during the map generation : some mobs may appear
 		-- before some node in the same place
-		self.object:remove()
+		-- But sometimes, it's happening during movement so we will use a timer
+		if self.inblocktimer > 1 then 
+			--print("mob removed : " .. minetest.pos_to_string(pos))
+			self.object:remove()
+		else
+			--print("mob will be removed : " .. minetest.pos_to_string(pos))
+			--print("Node : " .. node)
+			self.inblocktimer = self.inblocktimer + dtime
+		end
+	else
+		self.inblocktimer = 0
 	end
 	self.check_players_pos(self,dtime, pos)
 	if minetest.get_item_group(node, "water") == 0 and
@@ -46,7 +84,27 @@ function nmobs:check_state(dtime)
 		-- all mobs can swim in water or in lava
 		self.object:setacceleration({ x=0, y=0, z=0})
 	end
-		
+	-- We check if target is unreachable
+	if self.target then
+		if self.target ~= self.savetarget then
+			self.savetarget = self.target
+			self.targettimer = 20
+		else
+			if self.targettimer < 0 then
+				--print("Target unreachable")
+				-- target unreachable
+				self.target = nil
+				self.object:setvelocity({x = 0, y = 0, z = 0})
+				self.state = stand
+				self.object:set_animation(
+					{x=self.animation.stand_start,
+					y=self.animation.stand_end},
+					self.animation.speed_normal, 0)
+			else
+				self.targettimer = self.targettimer - dtime
+			end
+		end
+	end
 end
 
 function nmobs:check_players_pos(dtime,pos)
@@ -72,14 +130,32 @@ function nmobs:check_players_pos(dtime,pos)
 end
 
 function nmobs:find_target(dtime)
+	self.find_player(self, dtime)
 	self.find_random_target(self, dtime)
 end
 
+function nmobs:find_player(dtime)
+	if not self.peaceful then
+		local pos = self.object:getpos()
+		for _,player in pairs(minetest.get_connected_players()) do
+			local p = player:getpos()
+			local dist = vector.distance(p, pos)
+			if dist > 1 and dist <= self.view_range then
+				self.target = p
+				-- TODO select a random player if there are more than one
+				break
+			end
+		end
+	end
+end
+	
 function nmobs:find_random_target(dtime)
 	if self.target == nil then
 		local pos = self.object:getpos()
-		local minp = vector.subtract(vector.new(pos), self.view_range)
-		local maxp = vector.add(vector.new(pos), self.view_range)
+		local nodepos = vector.new(pos)
+		nodepos.y = nodepos.y + 0.5
+		local minp = vector.subtract(vector.new(nodepos), self.view_range / 4)
+		local maxp = vector.add(vector.new(nodepos), self.view_range / 4)
 		local l_air = minetest.find_nodes_in_area(minp, maxp, {"air"})
 		if #l_air == 0 then
 			print("Something is wrong")
@@ -109,24 +185,56 @@ function nmobs:goto_target(dtime)
 	if self.target then
 		local object = self.object
 		local pos = object:getpos()
-		local direction = vector.subtract(self.target, pos)
-		direction.y = 0
-		direction = vector.normalize(direction)
-		direction = vector.multiply(direction, self.move_velocity)
-		
-		object:setvelocity(direction)
-		object:set_animation(
-			{x=self.animation.move_start,
-			y=self.animation.move_end},
-			self.animation.speed_normal, 0)
+		local path = minetest.find_path(
+			pos,
+			self.target,
+			self.view_range,
+			self.stepheight,
+			self.maxdrop,
+			nil)
+		if path ~= nil and #path >= 2 then
+			local direction = vector.subtract(path[2], pos)
+			direction.y = 0
+			direction = vector.normalize(direction)
+			direction = vector.multiply(direction, self.move_velocity)
+			
+			object:setvelocity(direction)
+			object:set_animation(
+				{x=self.animation.move_start,
+				y=self.animation.move_end},
+				self.animation.speed_normal, 0)
+		else
+			--print("Path not found between " .. minetest.pos_to_string(pos) .. " and " .. minetest.pos_to_string(self.target) )
+			if vector.length(object:getvelocity()) == 0 then
+				local direction = vector.subtract(self.target, pos)
+				direction.y = 0
+				direction = vector.normalize(direction)
+				direction = vector.multiply(direction, self.move_velocity)
+			
+				object:setvelocity(direction)
+				object:set_animation(
+					{x=self.animation.move_start,
+					y=self.animation.move_end},
+					self.animation.speed_normal, 0)
+			end
+			--else we keep the same direction
+
+		end
 	end
 end
 
 function nmobs:target_reach(dtime)
 	if self.target then
-		if vector.distance(self.object:getpos(), self.target) <  1 then
-			self.target = nil
+		local pos = self.object:getpos()
+		--print("Target : " .. minetest.pos_to_string(self.target))
+		if math.abs(pos.x - self.target.x) < 1 and  math.abs(pos.y - self.target.y) < 1.5 and math.abs(pos.z - self.target.z) < 1 then
+			self.object:setvelocity({x = 0, y = 0, z = 0})
 			self.state = stand
+			self.object:set_animation(
+				{x=self.animation.stand_start,
+				y=self.animation.stand_end},
+				self.animation.speed_normal, 0)
+			self.target = nil
 		end
 	end	
 end
@@ -168,3 +276,4 @@ function register_mobs(name, proto)
 		print(name .. "must have an inherit record")
 	end
 end
+

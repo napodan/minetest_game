@@ -125,6 +125,9 @@ nsheep = {
 		move_start = 81,
 		move_end = 100,
 	},
+	sounds = {
+		random = "mobs_sheep",
+	},
 }
 
 nlamb = {

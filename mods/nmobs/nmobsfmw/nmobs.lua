@@ -166,7 +166,7 @@ function nmobs:find_random_target(dtime)
 		local maxp = vector.add(vector.new(nodepos), self.view_range / 4)
 		local l_air = minetest.find_nodes_in_area(minp, maxp, {"air"})
 		if #l_air == 0 then
-			print("Something is wrong for " .. minetest.pos_to_string(pos))
+			--print("Something is wrong for " .. minetest.pos_to_string(pos))
 			return
 		end
 		local i = math.random(1, #l_air)
@@ -226,7 +226,7 @@ function nmobs:goto_target(dtime)
 					self.animation.speed_normal, 0)
 			end
 			--else we keep the same direction
-			print(minetest.pos_to_string(pos))
+			--print(minetest.pos_to_string(pos))
 		end
 	end
 end

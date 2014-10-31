@@ -20,6 +20,21 @@ end
 function bredanimal:check_players_pos(dtime, pos)
 	-- Bred animals are not removed
 end
+
+function bredanimal:find_target(dtime)
+	local pos = self.object:getpos()
+	for _,player in pairs(minetest.get_connected_players()) do
+		local p = player:getpos()
+		local dist = vector.distance(p, pos)
+		if dist > 1 and dist <= self.view_range then
+			if player:get_wielded_item():get_name() == "farming:wheat" then
+				self.target = p
+				-- TODO multiplayers
+			end
+			break
+		end
+	end
+end
 register_mobs(MODNAME .. ":bredanimal", bredanimal)
 
 minetest.register_on_generated(function(minp, maxp, seed)

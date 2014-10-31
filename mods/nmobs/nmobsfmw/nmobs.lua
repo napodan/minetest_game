@@ -37,11 +37,11 @@ function nmobs:on_step(dtime)
 	if self.move_timer < 0 then
 		self.find_target(self, dtime)
 		self.goto_target(self, dtime)
-		self.target_reach(self, dtime)
 		self.move_timer = 1
 	else
 		self.move_timer = self.move_timer - dtime
 	end
+	self.target_reach(self, dtime)
 end
 
 function nmobs:check_state(dtime)
@@ -82,7 +82,15 @@ function nmobs:check_state(dtime)
 		self.object:setacceleration({ x=0, y=-10, z=0})
 	else
 		-- all mobs can swim in water or in lava
-		self.object:setacceleration({ x=0, y=0, z=0})
+		local upperpos = vector.new(nodepos)
+		upperpos.y = upperpos.y + 1
+		local uppernode = minetest.get_node(upperpos).name
+		if uppernode == "air" then
+			self.object:setacceleration({ x=0, y=0, z=0})
+			self.object:setvelocity({x = 0, y = 0, z = 0})
+		else
+			self.object:setacceleration({ x=0, y=10, z=0})
+		end
 	end
 	-- We check if target is unreachable
 	if self.target then
@@ -158,7 +166,7 @@ function nmobs:find_random_target(dtime)
 		local maxp = vector.add(vector.new(nodepos), self.view_range / 4)
 		local l_air = minetest.find_nodes_in_area(minp, maxp, {"air"})
 		if #l_air == 0 then
-			print("Something is wrong")
+			print("Something is wrong for " .. minetest.pos_to_string(pos))
 			return
 		end
 		local i = math.random(1, #l_air)
@@ -218,7 +226,7 @@ function nmobs:goto_target(dtime)
 					self.animation.speed_normal, 0)
 			end
 			--else we keep the same direction
-
+			print(minetest.pos_to_string(pos))
 		end
 	end
 end

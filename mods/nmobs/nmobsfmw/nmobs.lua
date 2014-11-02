@@ -77,6 +77,7 @@ function nmobs:check_state(dtime)
 		self.inblocktimer = 0
 	end
 	self.check_players_pos(self,dtime, pos)
+	
 	if minetest.get_item_group(node, "water") == 0 and
 		minetest.get_item_group(node, "lava") == 0 then
 		self.object:setacceleration({ x=0, y=-10, z=0})
@@ -87,9 +88,14 @@ function nmobs:check_state(dtime)
 		local uppernode = minetest.get_node(upperpos).name
 		if uppernode == "air" then
 			self.object:setacceleration({ x=0, y=0, z=0})
-			self.object:setvelocity({x = 0, y = 0, z = 0})
+			local v = self.object:getvelocity()
+			v.y = 0
+			self.object:setvelocity(v)
+			-- In water or lava node, entity must keep their head above
+			pos.y = math.floor(pos.y) + 0.5
+			self.object:setpos(pos)
 		else
-			self.object:setacceleration({ x=0, y=10, z=0})
+			self.object:setacceleration({ x=0, y=3, z=0})
 		end
 	end
 	-- We check if target is unreachable
